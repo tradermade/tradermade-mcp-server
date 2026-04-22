@@ -1,0 +1,664 @@
+[
+  {
+    "name": "live_currencies_list",
+    "docs_id": "tm://live_currencies_list",
+    "market": "reference-data",
+    "path_pattern": "/live_currencies_list",
+    "description": "List the currency and commodity codes supported by the live and convert endpoints.",
+    "tags": [
+      "symbols",
+      "currencies",
+      "fx",
+      "reference",
+      "live pairs",
+      "codes"
+    ],
+    "docs_url": "https://tradermade.com/live-currencies-list",
+    "source": "official_docs",
+    "params": [],
+    "response_hint": "available_currencies",
+    "examples": [
+      "/live_currencies_list"
+    ],
+    "notes": [
+      "Combine codes to form an instrument, for example EUR + USD -> EURUSD.",
+      "Authentication is via the api_key query parameter."
+    ]
+  },
+  {
+    "name": "live_crypto_list",
+    "docs_id": "tm://live_crypto_list",
+    "market": "crypto-reference",
+    "path_pattern": "/live_crypto_list",
+    "description": "List the cryptocurrency codes supported by TraderMade's live market-data endpoints.",
+    "tags": [
+      "crypto",
+      "symbols",
+      "codes",
+      "reference",
+      "live crypto"
+    ],
+    "docs_url": "https://tradermade.com/docs/restful-api",
+    "source": "official_docs",
+    "params": [],
+    "response_hint": "available_currencies",
+    "examples": [
+      "/live_crypto_list"
+    ],
+    "notes": [
+      "Use these codes with a fiat quote currency such as USD to form instruments like DOGEUSD.",
+      "Authentication is via the api_key query parameter."
+    ]
+  },
+  {
+    "name": "historical_currencies_list",
+    "docs_id": "tm://historical_currencies_list",
+    "market": "reference-data",
+    "path_pattern": "/historical_currencies_list",
+    "description": "List the instruments supported by TraderMade's historical REST endpoints.",
+    "tags": [
+      "historical symbols",
+      "currencies",
+      "reference",
+      "pairs",
+      "codes"
+    ],
+    "docs_url": "https://tradermade.com/historical-currencies-list",
+    "source": "official_docs",
+    "params": [],
+    "response_hint": "available_currencies",
+    "examples": [
+      "/historical_currencies_list"
+    ],
+    "notes": [
+      "Historical tick coverage is available only for a smaller subset of instruments.",
+      "Authentication is via the api_key query parameter."
+    ]
+  },
+  {
+    "name": "cfd_list",
+    "docs_id": "tm://cfd_list",
+    "market": "cfd-reference",
+    "path_pattern": "/cfd_list",
+    "description": "List the CFD instruments available through TraderMade.",
+    "tags": [
+      "cfd",
+      "indices",
+      "metals",
+      "energy",
+      "stocks",
+      "symbols"
+    ],
+    "docs_url": "https://tradermade.com/cfd-list",
+    "source": "node_sdk",
+    "params": [],
+    "response_hint": "generic",
+    "examples": [
+      "/cfd_list"
+    ],
+    "notes": [
+      "The path is taken from TraderMade's Node.js SDK and the public CFD list page confirms the dataset exists.",
+      "Authentication is via the api_key query parameter."
+    ]
+  },
+  {
+    "name": "streaming_currencies_list",
+    "docs_id": "tm://streaming_currencies_list",
+    "market": "streaming-reference",
+    "path_pattern": "/streaming_currencies_list",
+    "description": "List the instruments supported by TraderMade's streaming and websocket feeds.",
+    "tags": [
+      "streaming",
+      "websocket",
+      "symbols",
+      "tick",
+      "reference"
+    ],
+    "docs_url": "https://tradermade.com/streaming-fx/currencies-list",
+    "source": "node_sdk",
+    "params": [],
+    "response_hint": "generic",
+    "examples": [
+      "/streaming_currencies_list"
+    ],
+    "notes": [
+      "The REST path is taken from TraderMade's Node.js SDK; the public streaming currency list confirms the covered instruments.",
+      "Authentication is via the api_key query parameter."
+    ]
+  },
+  {
+    "name": "live",
+    "docs_id": "tm://live",
+    "market": "fx/crypto/cfd",
+    "path_pattern": "/live",
+    "description": "Retrieve live bid, ask, and mid prices for one or more currency pairs and/or CFDs.",
+    "tags": [
+      "live",
+      "rates",
+      "quotes",
+      "real-time",
+      "forex",
+      "crypto",
+      "cfd",
+      "prices"
+    ],
+    "docs_url": "https://tradermade.com/docs/restful-api",
+    "source": "official_docs",
+    "params": [
+      {
+        "name": "currency",
+        "location": "query",
+        "required": true,
+        "type": "string",
+        "example": "EURUSD,GBPUSD,UK100",
+        "description": "Single instrument or comma-separated list of instruments."
+      }
+    ],
+    "response_hint": "quotes",
+    "examples": [
+      "/live?currency=EURUSD,GBPUSD",
+      "/live?currency=UK100"
+    ],
+    "notes": [
+      "The public API playground describes this as real-time exchange rates for one or more currency pairs and/or CFDs.",
+      "Authentication is via the api_key query parameter."
+    ]
+  },
+  {
+    "name": "historical",
+    "docs_id": "tm://historical",
+    "market": "fx/crypto/cfd",
+    "path_pattern": "/historical",
+    "description": "Retrieve daily OHLC data for one or more requested instruments on a specific date.",
+    "tags": [
+      "historical",
+      "daily",
+      "ohlc",
+      "eod",
+      "forex",
+      "crypto",
+      "cfd"
+    ],
+    "docs_url": "https://tradermade.com/docs/restful-api",
+    "source": "official_docs",
+    "params": [
+      {
+        "name": "currency",
+        "location": "query",
+        "required": true,
+        "type": "string",
+        "example": "EURUSD",
+        "description": "Single pair or comma-separated list of instruments."
+      },
+      {
+        "name": "date",
+        "location": "query",
+        "required": true,
+        "type": "string",
+        "example": "2026-04-06",
+        "description": "Date in YYYY-MM-DD format."
+      }
+    ],
+    "response_hint": "quotes",
+    "examples": [
+      "/historical?currency=EURUSD&date=2026-04-06"
+    ],
+    "notes": [
+      "TraderMade's docs describe this endpoint as daily exchange-rate data.",
+      "Authentication is via the api_key query parameter."
+    ]
+  },
+  {
+    "name": "tick_historical",
+    "docs_id": "tm://tick_historical",
+    "market": "tick-data",
+    "path_pattern": "/tick_historical/{symbol}/{start_date}/{end_date}",
+    "description": "Retrieve historical tick-level bid/ask data for supported instruments over a time range.",
+    "tags": [
+      "tick",
+      "historical",
+      "bid",
+      "ask",
+      "intraday",
+      "high frequency"
+    ],
+    "docs_url": "https://tradermade.com/docs/restful-api",
+    "source": "official_docs",
+    "params": [
+      {
+        "name": "symbol",
+        "location": "path",
+        "required": true,
+        "type": "string",
+        "example": "GBPUSD",
+        "description": "Instrument code."
+      },
+      {
+        "name": "start_date",
+        "location": "path",
+        "required": true,
+        "type": "string",
+        "example": "2025-04-10-08:30",
+        "description": "Start timestamp in YYYY-MM-DD-HH:MM format."
+      },
+      {
+        "name": "end_date",
+        "location": "path",
+        "required": true,
+        "type": "string",
+        "example": "2025-04-10-09:00",
+        "description": "End timestamp in YYYY-MM-DD-HH:MM format."
+      },
+      {
+        "name": "format",
+        "location": "query",
+        "required": false,
+        "type": "string",
+        "example": "csv",
+        "description": "Optional output format such as json or csv."
+      }
+    ],
+    "response_hint": "quotes",
+    "examples": [
+      "/tick_historical/GBPUSD/2025-04-10-08:30/2025-04-10-09:00",
+      "/tick_historical/GBPUSD/2025-04-10-08:30/2025-04-10-09:00?format=csv"
+    ],
+    "notes": [
+      "TraderMade's docs show this as a path-parameter endpoint.",
+      "Authentication is via the api_key query parameter."
+    ]
+  },
+  {
+    "name": "tick_historical_sample",
+    "docs_id": "tm://tick_historical_sample",
+    "market": "tick-data",
+    "path_pattern": "/tick_historical_sample/{symbol}/{start_date}/{end_date}",
+    "description": "Retrieve a sample of historical tick data for a requested instrument and time range.",
+    "tags": [
+      "tick sample",
+      "historical",
+      "sample data",
+      "intraday",
+      "bid",
+      "ask"
+    ],
+    "docs_url": "https://tradermade.com/docs/restful-api",
+    "source": "node_sdk",
+    "params": [
+      {
+        "name": "symbol",
+        "location": "path",
+        "required": true,
+        "type": "string",
+        "example": "GBPUSD",
+        "description": "Instrument code."
+      },
+      {
+        "name": "start_date",
+        "location": "path",
+        "required": true,
+        "type": "string",
+        "example": "2025-04-10-08:30",
+        "description": "Start timestamp in YYYY-MM-DD-HH:MM format."
+      },
+      {
+        "name": "end_date",
+        "location": "path",
+        "required": true,
+        "type": "string",
+        "example": "2025-04-10-09:00",
+        "description": "End timestamp in YYYY-MM-DD-HH:MM format."
+      },
+      {
+        "name": "format",
+        "location": "query",
+        "required": false,
+        "type": "string",
+        "example": "csv",
+        "description": "Optional output format such as json or csv."
+      }
+    ],
+    "response_hint": "quotes",
+    "examples": [
+      "/tick_historical_sample/GBPUSD/2025-04-10-08:30/2025-04-10-09:00",
+      "/tick_historical_sample/GBPUSD/2025-04-10-08:30/2025-04-10-09:00?format=csv"
+    ],
+    "notes": [
+      "TraderMade's REST docs mention this endpoint, but the path template here is derived from the Node.js SDK because the current docs page does not show the full parameterized sample URL.",
+      "Authentication is via the api_key query parameter."
+    ]
+  },
+  {
+    "name": "minute_historical",
+    "docs_id": "tm://minute_historical",
+    "market": "intraday",
+    "path_pattern": "/minute_historical",
+    "description": "Retrieve OHLC data for a specific instrument at a specific minute.",
+    "tags": [
+      "minute",
+      "intraday",
+      "ohlc",
+      "historical",
+      "1m",
+      "fx",
+      "cfd"
+    ],
+    "docs_url": "https://tradermade.com/docs/restful-api",
+    "source": "official_docs",
+    "params": [
+      {
+        "name": "currency",
+        "location": "query",
+        "required": true,
+        "type": "string",
+        "example": "EURUSD",
+        "description": "Instrument code."
+      },
+      {
+        "name": "date_time",
+        "location": "query",
+        "required": true,
+        "type": "string",
+        "example": "2025-04-10-12:30",
+        "description": "Timestamp in YYYY-MM-DD-HH:MM format."
+      }
+    ],
+    "response_hint": "single_row",
+    "examples": [
+      "/minute_historical?currency=EURUSD&date_time=2025-04-10-12:30"
+    ],
+    "notes": [
+      "TraderMade's docs say minute historical data is available for very long lookback windows, subject to plan limits.",
+      "Authentication is via the api_key query parameter."
+    ]
+  },
+  {
+    "name": "hour_historical",
+    "docs_id": "tm://hour_historical",
+    "market": "intraday",
+    "path_pattern": "/hour_historical",
+    "description": "Retrieve OHLC data for a specific instrument at a specific hour.",
+    "tags": [
+      "hourly",
+      "intraday",
+      "ohlc",
+      "historical",
+      "1h",
+      "fx",
+      "cfd"
+    ],
+    "docs_url": "https://tradermade.com/docs/restful-api",
+    "source": "official_docs",
+    "params": [
+      {
+        "name": "currency",
+        "location": "query",
+        "required": true,
+        "type": "string",
+        "example": "EURUSD",
+        "description": "Instrument code."
+      },
+      {
+        "name": "date_time",
+        "location": "query",
+        "required": true,
+        "type": "string",
+        "example": "2025-04-10-13:00",
+        "description": "Timestamp in YYYY-MM-DD-HH:MM format."
+      }
+    ],
+    "response_hint": "single_row",
+    "examples": [
+      "/hour_historical?currency=EURUSD&date_time=2025-04-10-13:00"
+    ],
+    "notes": [
+      "TraderMade's docs describe this as OHLC for the given hour.",
+      "Authentication is via the api_key query parameter."
+    ]
+  },
+  {
+    "name": "timeseries",
+    "docs_id": "tm://timeseries",
+    "market": "historical-series",
+    "path_pattern": "/timeseries",
+    "description": "Retrieve daily, hourly, or minute OHLC timeseries data for a single requested instrument.",
+    "tags": [
+      "timeseries",
+      "ohlc",
+      "historical",
+      "daily",
+      "hourly",
+      "minute",
+      "bars"
+    ],
+    "docs_url": "https://tradermade.com/docs/restful-api",
+    "source": "official_docs",
+    "params": [
+      {
+        "name": "currency",
+        "location": "query",
+        "required": true,
+        "type": "string",
+        "example": "EURUSD",
+        "description": "Instrument code."
+      },
+      {
+        "name": "start_date",
+        "location": "query",
+        "required": true,
+        "type": "string",
+        "example": "2025-04-10-00:00",
+        "description": "Start date/time. Use YYYY-MM-DD for daily data or YYYY-MM-DD-HH:MM for hourly/minute data."
+      },
+      {
+        "name": "end_date",
+        "location": "query",
+        "required": true,
+        "type": "string",
+        "example": "2025-04-11-10:29",
+        "description": "End date/time. Use YYYY-MM-DD for daily data or YYYY-MM-DD-HH:MM for hourly/minute data."
+      },
+      {
+        "name": "interval",
+        "location": "query",
+        "required": false,
+        "type": "string",
+        "example": "hourly",
+        "description": "One of daily, hourly, or minute."
+      },
+      {
+        "name": "period",
+        "location": "query",
+        "required": false,
+        "type": "integer",
+        "example": "15",
+        "description": "Daily supports 1. Hourly supports 1, 2, 4, 6, 8, 24. Minute supports 1, 5, 10, 15, 30."
+      },
+      {
+        "name": "format",
+        "location": "query",
+        "required": false,
+        "type": "string",
+        "example": "records",
+        "description": "One of records, csv, index, columns, split."
+      }
+    ],
+    "response_hint": "quotes",
+    "examples": [
+      "/timeseries?currency=EURUSD&start_date=2026-01-01&end_date=2026-01-31",
+      "/timeseries?currency=EURUSD&start_date=2026-01-01-00:00&end_date=2026-01-02-00:00&interval=hourly",
+      "/timeseries?currency=EURUSD&start_date=2026-01-01-00:00&end_date=2026-01-02-00:00&interval=minute&period=15"
+    ],
+    "notes": [
+      "TraderMade's docs say timeseries requests are limited by plan and lookback horizon depending on interval.",
+      "Authentication is via the api_key query parameter."
+    ]
+  },
+  {
+    "name": "pandasDF",
+    "docs_id": "tm://pandasDF",
+    "market": "historical-series",
+    "path_pattern": "/pandasDF",
+    "description": "Retrieve historical data in a dataframe-friendly shape for Python workflows.",
+    "tags": [
+      "pandas",
+      "dataframe",
+      "historical",
+      "ohlc",
+      "python",
+      "export"
+    ],
+    "docs_url": "https://tradermade.com/docs/restful-api",
+    "source": "official_docs",
+    "params": [
+      {
+        "name": "currency",
+        "location": "query",
+        "required": true,
+        "type": "string",
+        "example": "EURUSD",
+        "description": "Instrument code."
+      },
+      {
+        "name": "start_date",
+        "location": "query",
+        "required": true,
+        "type": "string",
+        "example": "2026-01-01",
+        "description": "Start date in YYYY-MM-DD format."
+      },
+      {
+        "name": "end_date",
+        "location": "query",
+        "required": true,
+        "type": "string",
+        "example": "2026-01-31",
+        "description": "End date in YYYY-MM-DD format."
+      },
+      {
+        "name": "format",
+        "location": "query",
+        "required": false,
+        "type": "string",
+        "example": "records",
+        "description": "One of records, index, columns, split."
+      },
+      {
+        "name": "fields",
+        "location": "query",
+        "required": false,
+        "type": "string",
+        "example": "ohlc",
+        "description": "One of ohlc or close."
+      }
+    ],
+    "response_hint": "list",
+    "examples": [
+      "/pandasDF?currency=EURUSD&start_date=2026-01-01&end_date=2026-01-31&format=records&fields=ohlc"
+    ],
+    "notes": [
+      "TraderMade's docs position this endpoint for Python data-science workflows.",
+      "Authentication is via the api_key query parameter."
+    ]
+  },
+  {
+    "name": "convert",
+    "docs_id": "tm://convert",
+    "market": "conversion",
+    "path_pattern": "/convert",
+    "description": "Convert an amount from one currency to another using current market data.",
+    "tags": [
+      "convert",
+      "conversion",
+      "fx",
+      "currency exchange",
+      "amount"
+    ],
+    "docs_url": "https://tradermade.com/docs/restful-api",
+    "source": "official_docs",
+    "params": [
+      {
+        "name": "from",
+        "location": "query",
+        "required": true,
+        "type": "string",
+        "example": "EUR",
+        "description": "Source currency code."
+      },
+      {
+        "name": "to",
+        "location": "query",
+        "required": true,
+        "type": "string",
+        "example": "USD",
+        "description": "Target currency code."
+      },
+      {
+        "name": "amount",
+        "location": "query",
+        "required": true,
+        "type": "number",
+        "example": "1000",
+        "description": "Amount to convert."
+      }
+    ],
+    "response_hint": "single_row",
+    "examples": [
+      "/convert?from=EUR&to=USD&amount=1000"
+    ],
+    "notes": [
+      "TraderMade's docs return the quote and the total converted amount.",
+      "Authentication is via the api_key query parameter."
+    ]
+  },
+  {
+    "name": "market_open_status",
+    "docs_id": "tm://market_open_status",
+    "market": "market-status",
+    "path_pattern": "/market_open_status",
+    "description": "Return the current market-open status for TraderMade-supported CFD markets.",
+    "tags": [
+      "market status",
+      "open",
+      "closed",
+      "session",
+      "trading hours",
+      "cfd"
+    ],
+    "docs_url": "https://tradermade.com/docs/api",
+    "source": "node_sdk",
+    "params": [],
+    "response_hint": "generic",
+    "examples": [
+      "/market_open_status"
+    ],
+    "notes": [
+      "The operation is present in TraderMade's Node.js SDK and the API playground summary advertises market opening times and status.",
+      "Authentication is via the api_key query parameter."
+    ]
+  },
+  {
+    "name": "market_opening_times",
+    "docs_id": "tm://market_opening_times",
+    "market": "market-status",
+    "path_pattern": "/market_opening_times",
+    "description": "Return trading-session opening times for TraderMade CFD markets.",
+    "tags": [
+      "market opening times",
+      "trading hours",
+      "session calendar",
+      "cfd"
+    ],
+    "docs_url": "https://tradermade.com/cfd-opening-times",
+    "source": "node_sdk",
+    "params": [],
+    "response_hint": "generic",
+    "examples": [
+      "/market_opening_times"
+    ],
+    "notes": [
+      "The REST path is taken from TraderMade's Node.js SDK; the public CFD opening-times page documents the schedule dataset.",
+      "Authentication is via the api_key query parameter."
+    ]
+  }
+]
