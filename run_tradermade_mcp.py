@@ -123,14 +123,8 @@ def run_checked(command: Iterable[str], *, cwd: Path | None = None) -> None:
         list(command),
         cwd=str(cwd) if cwd is not None else None,
         env=env,
-        # Do NOT redirect through a Python file object (stdout=sys.stderr).
-        # On Python 3.14 + Windows, child processes that themselves spawn
-        # sub-subprocesses (e.g. ensurepip → pip) deadlock when their handles
-        # are inherited as Python-level file descriptors rather than raw OS
-        # handles.  Passing None lets subprocess inherit the real console
-        # handles directly, which avoids the deadlock entirely.
-        stdout=None,
-        stderr=None,
+        stdout=sys.stderr,
+        stderr=sys.stderr,
         check=False,
     )
     if completed.returncode != 0:
@@ -142,9 +136,8 @@ def ensure_venv(venv_dir: Path) -> Path:
     if venv_python.exists():
         return venv_python
     log(f"Creating virtual environment at {venv_dir}")
-    # --without-pip: skip the built-in ensurepip call during venv creation.
-    # On Python 3.14 + Windows, that call hangs due to subprocess handle
-    # inheritance issues.  We bootstrap pip ourselves in the next step.
+    # --without-pip avoids the internal ensurepip call inside `venv`, which
+    # hangs on Python 3.14 + Windows due to subprocess handle inheritance issues.
     run_checked(
         [sys.executable, "-m", "venv", "--without-pip", str(venv_dir)],
         cwd=PROJECT_ROOT,
@@ -152,7 +145,21 @@ def ensure_venv(venv_dir: Path) -> Path:
     if not venv_python.exists():
         fail(f"Virtual environment was created but {venv_python} was not found")
     log("Bootstrapping pip inside the virtual environment")
-    run_checked([str(venv_python), "-m", "ensurepip", "--upgrade"], cwd=PROJECT_ROOT)
+    # IMPORTANT: do NOT use run_checked here. run_checked overrides TMP/TEMP/
+    # TMPDIR to point at the project .bootstrap-tmp directory. ensurepip
+    # extracts the bundled pip wheel there, and Windows Defender aggressively
+    # scans every .py file compiled from that unfamiliar location, making it
+    # appear to hang for minutes. Without the override, ensurepip uses the real
+    # system %TEMP% (already trusted by Defender) and finishes in seconds.
+    completed = subprocess.run(
+        [str(venv_python), "-m", "ensurepip", "--upgrade"],
+        cwd=str(PROJECT_ROOT),
+        stdout=None,
+        stderr=None,
+        check=False,
+    )
+    if completed.returncode != 0:
+        fail(f"pip bootstrap failed with exit code {completed.returncode}")
     return venv_python
 
 
