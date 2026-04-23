@@ -14,7 +14,7 @@ The bootstrap script creates a virtual environment, installs all dependencies, a
 
 **Windows:**
 ```powershell
-python run_tradermade_mcp.py --api-key=YOUR_TRADERMADE_API_KEY --bootstrap-only --configure-claude
+.\run_tradermade_mcp.cmd --api-key=YOUR_TRADERMADE_API_KEY --bootstrap-only --configure-claude
 ```
 
 **macOS/Linux:**
@@ -39,7 +39,7 @@ If you prefer to manage the config yourself, run bootstrap without `--configure-
 
 **Windows:**
 ```powershell
-python run_tradermade_mcp.py --api-key=YOUR_TRADERMADE_API_KEY --bootstrap-only
+.\run_tradermade_mcp.cmd --api-key=YOUR_TRADERMADE_API_KEY --bootstrap-only
 ```
 
 **macOS/Linux:**

@@ -136,9 +136,16 @@ def ensure_venv(venv_dir: Path) -> Path:
     if venv_python.exists():
         return venv_python
     log(f"Creating virtual environment at {venv_dir}")
-    run_checked([sys.executable, "-m", "venv", str(venv_dir)], cwd=PROJECT_ROOT)
+    # Use --without-pip to avoid ensurepip hanging on Python 3.14+ / Windows.
+    # We bootstrap pip ourselves immediately after.
+    run_checked(
+        [sys.executable, "-m", "venv", "--without-pip", str(venv_dir)],
+        cwd=PROJECT_ROOT,
+    )
     if not venv_python.exists():
         fail(f"Virtual environment was created but {venv_python} was not found")
+    log("Bootstrapping pip inside the virtual environment")
+    run_checked([str(venv_python), "-m", "ensurepip", "--upgrade"], cwd=PROJECT_ROOT)
     return venv_python
 
 
