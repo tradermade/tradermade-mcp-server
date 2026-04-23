@@ -123,8 +123,14 @@ def run_checked(command: Iterable[str], *, cwd: Path | None = None) -> None:
         list(command),
         cwd=str(cwd) if cwd is not None else None,
         env=env,
-        stdout=sys.stderr,
-        stderr=sys.stderr,
+        # Do NOT redirect through a Python file object (stdout=sys.stderr).
+        # On Python 3.14 + Windows, child processes that themselves spawn
+        # sub-subprocesses (e.g. ensurepip → pip) deadlock when their handles
+        # are inherited as Python-level file descriptors rather than raw OS
+        # handles.  Passing None lets subprocess inherit the real console
+        # handles directly, which avoids the deadlock entirely.
+        stdout=None,
+        stderr=None,
         check=False,
     )
     if completed.returncode != 0:
@@ -136,8 +142,9 @@ def ensure_venv(venv_dir: Path) -> Path:
     if venv_python.exists():
         return venv_python
     log(f"Creating virtual environment at {venv_dir}")
-    # Use --without-pip to avoid ensurepip hanging on Python 3.14+ / Windows.
-    # We bootstrap pip ourselves immediately after.
+    # --without-pip: skip the built-in ensurepip call during venv creation.
+    # On Python 3.14 + Windows, that call hangs due to subprocess handle
+    # inheritance issues.  We bootstrap pip ourselves in the next step.
     run_checked(
         [sys.executable, "-m", "venv", "--without-pip", str(venv_dir)],
         cwd=PROJECT_ROOT,
