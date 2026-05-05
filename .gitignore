@@ -15,6 +15,10 @@ dist/
 .coverage
 htmlcov/
 *.log
+*.sqlite
+*.sqlite3
+*.db
+tradermade_cache.sqlite
 .DS_Store
 Thumbs.db
-
+New Folder/

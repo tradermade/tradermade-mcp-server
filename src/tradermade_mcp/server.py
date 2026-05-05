@@ -18,6 +18,7 @@ import re
 import ssl
 import threading
 from importlib.metadata import PackageNotFoundError, version
+from pathlib import Path
 from typing import Annotated, Any, Literal, Optional
 from urllib.parse import unquote
 
@@ -93,6 +94,7 @@ MAX_RESPONSE_SIZE_BYTES = 25 * 1024 * 1024
 DEFAULT_BASE_URL = "https://marketdata.tradermade.com/api/v1"
 DEFAULT_MAX_TABLES = 50
 DEFAULT_MAX_ROWS = 50000
+DEFAULT_SQLITE_PATH = str(Path(__file__).resolve().parents[2] / "tradermade_cache.sqlite")
 
 _init_lock = threading.Lock()
 _http_client: httpx.AsyncClient | None = None
@@ -188,8 +190,23 @@ def _get_store() -> SQLiteStore:
             _store = SQLiteStore(
                 max_tables=_env_int("TRADERMADE_MAX_TABLES", DEFAULT_MAX_TABLES),
                 max_rows=_env_int("TRADERMADE_MAX_ROWS", DEFAULT_MAX_ROWS),
+                db_path=os.getenv("TRADERMADE_SQLITE_PATH", DEFAULT_SQLITE_PATH) or DEFAULT_SQLITE_PATH,
             )
+            atexit.register(_close_store)
         return _store
+
+
+def _close_store() -> None:
+    """Close SQLite store cleanly."""
+    global _store
+    store = _store
+    if store is None:
+        return
+    _store = None
+    try:
+        store.close()
+    except Exception:
+        logger.debug("Failed to close TraderMade SQLite store cleanly", exc_info=True)
 
 
 register_indicator_tools(tradermade_mcp, _readonly_tool)
@@ -305,7 +322,7 @@ async def call_api(
     store_as: Annotated[
         Optional[str],
         Field(
-            description="Optional table name to store results in-memory for later SQL analysis",
+            description="Optional table name to store results in SQLite for later SQL analysis",
             default=None,
             pattern=r"^[a-zA-Z_][a-zA-Z0-9_]{0,62}$",
         ),
@@ -323,7 +340,7 @@ async def call_api(
         Field(description="Optional TraderMade API key override for this request", default=None),
     ] = None,
 ) -> str:
-    """Call any allow-listed TraderMade REST endpoint. Use the path from search_endpoints and pass query parameters in params. Supports storing tabular results in-memory with store_as and then querying them with query_data. Supports optional post-processing steps via apply, such as moving averages and returns."""
+    """Call any allow-listed TraderMade REST endpoint. Use the path from search_endpoints and pass query parameters in params. Supports storing tabular results in SQLite with store_as and then querying them with query_data. Supports optional post-processing steps via apply, such as moving averages and returns."""
     if method.upper() != "GET":
         return f"Error [INVALID_REQUEST]: Only GET is supported, got {method}"
 
@@ -481,7 +498,12 @@ def configure_from_env() -> None:
         max_tables = _env_int("TRADERMADE_MAX_TABLES", DEFAULT_MAX_TABLES)
         max_rows = _env_int("TRADERMADE_MAX_ROWS", DEFAULT_MAX_ROWS)
         if _store is None:
-            _store = SQLiteStore(max_tables=max_tables, max_rows=max_rows)
+            _store = SQLiteStore(
+                max_tables=max_tables,
+                max_rows=max_rows,
+                db_path=os.getenv("TRADERMADE_SQLITE_PATH", DEFAULT_SQLITE_PATH) or DEFAULT_SQLITE_PATH,
+            )
+            atexit.register(_close_store)
 
 
 def run(transport: Literal["stdio", "sse", "streamable-http"] = "stdio") -> None:

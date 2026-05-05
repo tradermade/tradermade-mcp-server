@@ -3,6 +3,7 @@ from __future__ import annotations
 import sqlite3
 import time
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 
@@ -15,8 +16,15 @@ class StoreSummary:
 
 
 class SQLiteStore:
-    def __init__(self, max_tables: int = 50, max_rows: int = 50000):
-        self._conn = sqlite3.connect(":memory:", check_same_thread=False)
+    def __init__(self, max_tables: int = 50, max_rows: int = 50000, db_path: str | None = None):
+        if db_path:
+            path = Path(db_path).expanduser()
+            path.parent.mkdir(parents=True, exist_ok=True)
+            database = str(path)
+        else:
+            database = ":memory:"
+
+        self._conn = sqlite3.connect(database, check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
         self._max_tables = max_tables
         self._max_rows = max_rows
@@ -31,8 +39,9 @@ class SQLiteStore:
                 f"Refusing to store {len(records)} rows; TRADERMADE_MAX_ROWS is {self._max_rows}"
             )
 
-        if table_name not in self._meta and len(self._meta) >= self._max_tables:
-            oldest = min(self._meta.items(), key=lambda item: item[1]["created_at"])[0]
+        existing_tables = self._list_table_names()
+        if table_name not in existing_tables and len(existing_tables) >= self._max_tables:
+            oldest = self._oldest_known_table(existing_tables)
             self.drop_table(oldest)
 
         flattened = [flatten_record(record) for record in records]
@@ -70,12 +79,13 @@ class SQLiteStore:
 
     def show_tables(self) -> str:
         rows = []
-        for name, meta in sorted(self._meta.items()):
+        for name in self._list_table_names():
+            meta = self._meta.get(name, {})
             rows.append(
                 {
                     "table_name": name,
-                    "row_count": meta["row_count"],
-                    "created_at_epoch": int(meta["created_at"]),
+                    "row_count": self._table_row_count(name),
+                    "created_at_epoch": int(meta["created_at"]) if "created_at" in meta else "",
                 }
             )
         if not rows:
@@ -110,6 +120,32 @@ class SQLiteStore:
         cur.execute(sql)
         rows = cur.fetchall()
         return [dict(row) for row in rows]
+
+    def close(self) -> None:
+        self._conn.close()
+
+    def _list_table_names(self) -> list[str]:
+        cur = self._conn.cursor()
+        cur.execute(
+            "SELECT name FROM sqlite_master "
+            "WHERE type = 'table' AND name NOT LIKE 'sqlite_%' "
+            "ORDER BY name"
+        )
+        return [str(row["name"]) for row in cur.fetchall()]
+
+    def _table_row_count(self, table_name: str) -> int:
+        cur = self._conn.cursor()
+        cur.execute(f'SELECT COUNT(*) AS count FROM "{table_name}"')
+        row = cur.fetchone()
+        return int(row["count"]) if row is not None else 0
+
+    def _oldest_known_table(self, table_names: list[str]) -> str:
+        if not table_names:
+            raise ValueError("No stored tables to evict")
+        known = {name: self._meta[name] for name in table_names if name in self._meta}
+        if known:
+            return min(known.items(), key=lambda item: item[1]["created_at"])[0]
+        return sorted(table_names)[0]
 
 
 def sanitize_table_name(name: str) -> str:
