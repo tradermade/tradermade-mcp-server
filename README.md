@@ -130,11 +130,13 @@ Before making a call the agent can search for the correct TraderMade endpoint or
 
 ### SQL over stored results
 
-When the agent fetches tabular data, results can be stored in a temporary in-memory SQLite database for the duration of the session. The agent then runs read-only SQL for follow-up analysis without re-fetching — useful for:
+When the agent fetches tabular data, results can be stored in a local SQLite database named `tradermade_cache.sqlite` by default. The agent then runs read-only SQL for follow-up analysis without re-fetching — useful for:
 
 - Comparing multiple instruments side-by-side
 - Filtering a timeseries by date range or symbol
 - Calculating custom summaries over cached datasets
+
+Set `TRADERMADE_SQLITE_PATH` or pass `--sqlite-path` to override the cache file location.
 
 ### Technical indicators
 
@@ -206,7 +208,7 @@ src/tradermade_mcp/
   server.py                  Main MCP server entry point
   endpoint_catalog.json      TraderMade endpoint catalog used by discovery and docs
   endpoint_index.py          Endpoint search and resolution logic
-  store.py                   Temporary in-memory SQLite store
+  store.py                   Persistent SQLite store
   functions.py               Built-in row/query post-processing functions
   indicator_math.py          Local technical indicator calculation engine
   components/

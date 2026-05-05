@@ -33,7 +33,7 @@ src/tradermade_mcp/store.py
 - `__init__.py`: Package metadata only. It exports `__version__`.
 - `run_tradermade_mcp.py`: Stdlib-only bootstrap launcher. It creates `venv`, installs the package when needed, optionally loads `.env`, and then execs into `tradermade_mcp.server`.
 - `run_tradermade_mcp.cmd`: Windows wrapper that finds a Python interpreter and forwards to `run_tradermade_mcp.py`.
-- `server.py`: Main FastMCP server. Defines the four MCP tools, reads env vars, manages the HTTP client, and manages the in-memory SQLite store.
+- `server.py`: Main FastMCP server. Defines the MCP tools, reads env vars, manages the HTTP client, and manages the SQLite store.
 - `endpoint_catalog.json`: Static allowlist of TraderMade endpoints, parameter docs, examples, and notes. This is the runtime source of truth for supported endpoints.
 - `endpoint_index.py`: Loads `endpoint_catalog.json`, builds the search index, resolves endpoint IDs and paths, formats docs, and validates allowed paths.
 - `formatters.py`: Parses JSON/CSV/text API responses, extracts tabular records, and formats previews for MCP output.
@@ -60,7 +60,8 @@ Note: the code does not load `.env` files automatically. Values must be exported
 - `TRADERMADE_API_KEY`: Required for real TraderMade API calls.
 - `TRADERMADE_API_BASE_URL`: Optional base URL. Defaults to `https://marketdata.tradermade.com/api/v1`.
 - `MCP_TRANSPORT`: Optional transport override for `main()`. Valid values: `stdio`, `sse`, `streamable-http`.
-- `TRADERMADE_MAX_TABLES`: Optional cap for stored in-memory tables. Default is `50`.
+- `TRADERMADE_MAX_TABLES`: Optional cap for stored SQLite tables. Default is `50`.
+- `TRADERMADE_SQLITE_PATH`: Optional SQLite cache path. Defaults to `tradermade_cache.sqlite` in the project root.
 - `TRADERMADE_MAX_ROWS`: Optional cap for stored rows per table. Default is `50000`.
 - `PORT`: Used by `app.py` / `Procfile` web deployment to choose the listening port.
 

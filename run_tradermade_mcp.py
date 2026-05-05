@@ -51,6 +51,7 @@ def parse_args() -> tuple[argparse.Namespace, list[str]]:
     parser.add_argument("--base-url", help="Optional TRADERMADE_API_BASE_URL override")
     parser.add_argument("--max-tables", type=int, help="Optional TRADERMADE_MAX_TABLES override")
     parser.add_argument("--max-rows", type=int, help="Optional TRADERMADE_MAX_ROWS override")
+    parser.add_argument("--sqlite-path", help="Optional TRADERMADE_SQLITE_PATH override")
     parser.add_argument(
         "--venv-dir",
         default=str(DEFAULT_VENV_DIR),
@@ -287,6 +288,8 @@ def apply_launcher_overrides(args: argparse.Namespace) -> None:
         os.environ["TRADERMADE_MAX_TABLES"] = str(args.max_tables)
     if args.max_rows is not None:
         os.environ["TRADERMADE_MAX_ROWS"] = str(args.max_rows)
+    if args.sqlite_path:
+        os.environ["TRADERMADE_SQLITE_PATH"] = args.sqlite_path
     if args.transport:
         os.environ["MCP_TRANSPORT"] = args.transport
 
@@ -344,15 +347,18 @@ def get_claude_config_path() -> Path:
         return base / "Claude" / "claude_desktop_config.json"
 
 
-def write_claude_config(venv_python: Path, api_key: str) -> None:
+def write_claude_config(venv_python: Path, api_key: str, sqlite_path: str | None = None) -> None:
     """Merge the tradermade MCP entry into Claude Desktop's config file."""
     config_path = get_claude_config_path()
 
     # Build the new server entry using the resolved venv python path
+    env = {"TRADERMADE_API_KEY": api_key}
+    if sqlite_path:
+        env["TRADERMADE_SQLITE_PATH"] = sqlite_path
     new_entry: dict = {
         "command": str(venv_python),
         "args": ["-m", "tradermade_mcp.server"],
-        "env": {"TRADERMADE_API_KEY": api_key},
+        "env": env,
     }
 
     # Load existing config or start fresh
@@ -365,7 +371,7 @@ def write_claude_config(venv_python: Path, api_key: str) -> None:
 
     already_present = (
         config.get("mcpServers", {}).get("tradermade", {}).get("command") == str(venv_python)
-        and config.get("mcpServers", {}).get("tradermade", {}).get("env", {}).get("TRADERMADE_API_KEY") == api_key
+        and config.get("mcpServers", {}).get("tradermade", {}).get("env", {}) == env
     )
     if already_present:
         log("Claude Desktop config already up-to-date — no changes written.")
@@ -416,7 +422,7 @@ def main() -> None:
                     "Pass --api-key=YOUR_KEY or set TRADERMADE_API_KEY in your environment."
                 )
             else:
-                write_claude_config(venv_python, api_key)
+                write_claude_config(venv_python, api_key, os.environ.get("TRADERMADE_SQLITE_PATH"))
         return
 
     env = os.environ.copy()
